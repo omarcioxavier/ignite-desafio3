@@ -1,7 +1,7 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
-import { toast } from 'react-toastify';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { Product, Stock } from '../types';
+import { Cart, Cart as CartList, Product, Stock } from '../types';
+import { useProducts } from './useProducts';
 
 interface CartProviderProps {
   children: ReactNode;
@@ -12,9 +12,9 @@ interface UpdateProductAmount {
   amount: number;
 }
 
-interface CartContextData {
-  cart: Product[];
-  addProduct: (productId: number) => Promise<void>;
+export interface CartContextData {
+  cartList: CartList[];
+  addProduct: (cartItem: Cart) => Promise<void>;
   removeProduct: (productId: number) => void;
   updateProductAmount: ({ productId, amount }: UpdateProductAmount) => void;
 }
@@ -22,19 +22,19 @@ interface CartContextData {
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
-  const [cart, setCart] = useState<Product[]>(() => {
-    // const storagedCart = Buscar dados do localStorage
+  const [cartList, setCart] = useState<CartList[]>([]);
 
-    // if (storagedCart) {
-    //   return JSON.parse(storagedCart);
-    // }
+  useEffect(() => {
+    api.get('cart')
+      .then(response => setCart(response.data))
+  }, []);
 
-    return [];
-  });
+  const { products } = useProducts();
 
-  const addProduct = async (productId: number) => {
+  const addProduct = async (cartItem: Cart) => {
     try {
-      // TODO
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cartItem))
+      setCart([...cartList, cartItem]);
     } catch {
       // TODO
     }
@@ -60,16 +60,12 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
   };
 
   return (
-    <CartContext.Provider
-      value={{ cart, addProduct, removeProduct, updateProductAmount }}
-    >
+    <CartContext.Provider value={{ cartList: cartList, addProduct, removeProduct, updateProductAmount }}>
       {children}
     </CartContext.Provider>
   );
 }
 
 export function useCart(): CartContextData {
-  const context = useContext(CartContext);
-
-  return context;
+  return useContext(CartContext);
 }

@@ -44,7 +44,7 @@ describe('useCart Hook', () => {
       wrapper: CartProvider,
     });
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining([
         {
           id: 1,
@@ -91,7 +91,7 @@ describe('useCart Hook', () => {
 
     await waitForNextUpdate({ timeout: 200 });
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining([
         {
           id: 1,
@@ -121,7 +121,7 @@ describe('useCart Hook', () => {
     );
     expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
       '@RocketShoes:cart',
-      JSON.stringify(result.current.cart)
+      JSON.stringify(result.current.cartList)
     );
   });
 
@@ -148,7 +148,7 @@ describe('useCart Hook', () => {
       { timeout: 200 }
     );
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining(initialStoragedData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
@@ -179,7 +179,7 @@ describe('useCart Hook', () => {
 
     await waitForNextUpdate({ timeout: 200 });
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining([
         {
           id: 1,
@@ -201,7 +201,7 @@ describe('useCart Hook', () => {
     );
     expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
       '@RocketShoes:cart',
-      JSON.stringify(result.current.cart)
+      JSON.stringify(result.current.cartList)
     );
   });
 
@@ -238,7 +238,7 @@ describe('useCart Hook', () => {
       }
     );
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining(initialStoragedData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
@@ -255,7 +255,7 @@ describe('useCart Hook', () => {
       result.current.removeProduct(productId);
     });
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining([
         {
           amount: 2,
@@ -269,7 +269,7 @@ describe('useCart Hook', () => {
     );
     expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
       '@RocketShoes:cart',
-      JSON.stringify(result.current.cart)
+      JSON.stringify(result.current.cartList)
     );
   });
 
@@ -285,7 +285,7 @@ describe('useCart Hook', () => {
     });
 
     expect(mockedToastError).toHaveBeenCalledWith('Erro na remoção do produto');
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining(initialStoragedData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
@@ -309,7 +309,7 @@ describe('useCart Hook', () => {
 
     await waitForNextUpdate({ timeout: 200 });
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining([
         {
           id: 1,
@@ -331,7 +331,7 @@ describe('useCart Hook', () => {
     );
     expect(mockedSetItemLocalStorage).toHaveBeenCalledWith(
       '@RocketShoes:cart',
-      JSON.stringify(result.current.cart)
+      JSON.stringify(result.current.cartList)
     );
   });
 
@@ -357,7 +357,7 @@ describe('useCart Hook', () => {
       { timeout: 200 }
     );
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining(initialStoragedData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
@@ -388,7 +388,7 @@ describe('useCart Hook', () => {
       { timeout: 200 }
     );
 
-    expect(result.current.cart).toEqual(
+    expect(result.current.cartList).toEqual(
       expect.arrayContaining(initialStoragedData)
     );
     expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
@@ -413,16 +413,16 @@ describe('useCart Hook', () => {
     try {
       await waitForValueToChange(
         () => {
-          return result.current.cart;
+          return result.current.cartList;
         },
         { timeout: 50 }
       );
-      expect(result.current.cart).toEqual(
+      expect(result.current.cartList).toEqual(
         expect.arrayContaining(initialStoragedData)
       );
       expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
     } catch {
-      expect(result.current.cart).toEqual(
+      expect(result.current.cartList).toEqual(
         expect.arrayContaining(initialStoragedData)
       );
       expect(mockedSetItemLocalStorage).not.toHaveBeenCalled();
