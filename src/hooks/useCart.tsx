@@ -1,7 +1,7 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
+import { toast } from 'react-toastify';
 import { api } from '../services/api';
-import { Cart, Cart as CartList, Product, Stock } from '../types';
-import { useProducts } from './useProducts';
+import { Product } from '../types';
 
 interface CartProviderProps {
   children: ReactNode;
@@ -13,8 +13,8 @@ interface UpdateProductAmount {
 }
 
 export interface CartContextData {
-  cartList: CartList[];
-  addProduct: (cartItem: Cart) => Promise<void>;
+  cart: Product[];
+  addProduct: (productId: number) => Promise<void>;
   removeProduct: (productId: number) => void;
   updateProductAmount: ({ productId, amount }: UpdateProductAmount) => void;
 }
@@ -22,45 +22,87 @@ export interface CartContextData {
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
 export function CartProvider({ children }: CartProviderProps): JSX.Element {
-  const [cartList, setCart] = useState<CartList[]>([]);
+  const [cart, setCart] = useState<Product[]>(() => {
+    const storagedCart = localStorage.getItem('@RocketShoes:cart');
+    return storagedCart ? JSON.parse(storagedCart) : [];
+  });
 
-  useEffect(() => {
-    api.get('cart')
-      .then(response => setCart(response.data))
-  }, []);
-
-  const { products } = useProducts();
-
-  const addProduct = async (cartItem: Cart) => {
+  const addProduct = async (productId: number) => {
     try {
-      localStorage.setItem('@RocketShoes:cart', JSON.stringify(cartItem))
-      setCart([...cartList, cartItem]);
-    } catch {
-      // TODO
+      const currentCart = [...cart];
+      const productExistsInCart = cart.find(x => x.id === productId);
+      const stock = await api.get(`/stock/${productId}`);
+
+      var fodaSe = (productExistsInCart?.amount ?? 0 + 1);
+
+      if (stock.data.amount === 0 || fodaSe >= stock.data.amount) {
+        throw new Error("Item sem estoque");
+      }
+
+      if (productExistsInCart) {
+        productExistsInCart.amount++;
+      } else {
+        const product = await api.get(`/products/${productId}`);
+        const newProduct = {
+          ...product.data, amount: 1
+        };
+        currentCart.push(newProduct);
+      }
+
+      setCart(currentCart);
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(currentCart));
+
+    } catch (e) {
+      toast.error("" + e);
     }
   };
 
   const removeProduct = (productId: number) => {
     try {
-      // TODO
-    } catch {
-      // TODO
+      const updatedCart = [...cart];
+      const productIndex = updatedCart.findIndex(p => p.id === productId);
+
+      if (productIndex === -1) {
+        throw new Error();
+      }
+
+      updatedCart.splice(productIndex, 1);
+      setCart(updatedCart);
+      localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
+    } catch (e) {
+      toast.error("" + e);
     }
   };
 
-  const updateProductAmount = async ({
-    productId,
-    amount,
-  }: UpdateProductAmount) => {
+  const updateProductAmount = async ({ productId, amount }: UpdateProductAmount) => {
     try {
-      // TODO
-    } catch {
-      // TODO
+      if (amount <= 0) {
+        throw new Error("Quantidade inválida");
+      }
+
+      const stock = await api.get(`/stock/${productId}`);
+      const stockAmount = stock.data.amount;
+      if (amount > stockAmount) {
+        throw new Error("Quantidade solicitada indisponível.");
+      }
+      const updatedCart = [...cart];
+      const productExists = updatedCart.find(x => x.id === productId);
+
+      if (productExists) {
+        productExists.amount = amount;
+        setCart(updatedCart);
+        localStorage.setItem('@RocketShoes:cart', JSON.stringify(updatedCart));
+      } else {
+        throw new Error("Quantidade solicitada indisponível.");
+      }
+
+    } catch (e) {
+      toast.error("" + e);
     }
   };
 
   return (
-    <CartContext.Provider value={{ cartList: cartList, addProduct, removeProduct, updateProductAmount }}>
+    <CartContext.Provider value={{ cart, addProduct, removeProduct, updateProductAmount }}>
       {children}
     </CartContext.Provider>
   );

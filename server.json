@@ -25,20 +25,6 @@
       "amount": 10
     }
   ],
-  "cart": [
-    {
-      "productId": 1,
-      "amount": 179.9
-    },
-    {
-      "productId": 2,
-      "amount": 139.9
-    },
-    {
-      "productId": 2,
-      "amount": 139.9
-    }
-  ],
   "products": [
     {
       "id": 1,

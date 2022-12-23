@@ -1,5 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { api } from "../services/api";
+import { createContext, ReactNode, useContext, useState } from "react";
 import { Product } from "../types";
 
 interface ProductsProviderProps {
@@ -13,12 +12,7 @@ export interface ProductsContextData {
 const ProductsContext = createContext<ProductsContextData>({} as ProductsContextData);
 
 export function ProductsProvider({ children }: ProductsProviderProps): JSX.Element {
-    const [products, setProducts] = useState<Product[]>([]);
-
-    useEffect(() => {
-        api.get('products')
-            .then(response => setProducts(response.data))
-    }, []);
+    const [products] = useState<Product[]>([]);
 
     return (
         <ProductsContext.Provider value={{ products }} >
